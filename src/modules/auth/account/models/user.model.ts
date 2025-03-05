@@ -12,7 +12,7 @@ export class UserModel {
 	public username: string
 
 	@Field(() => String)
-	public displaynam: string
+	public displayName: string
 
 	@Field(() => String, { nullable: true })
 	public avatar: string
