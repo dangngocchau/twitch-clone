@@ -51,9 +51,8 @@ export class SessionService {
 			}
 		}
 
-		userSessions.sort((a, b) => b.createAt - a.createAt)
-
-		return userSessions.filter(session => session.id === req.session.id)
+		userSessions.sort((a, b) => b.createdAt - a.createdAt)
+		return userSessions.filter(session => session.id !== req.session.id)
 	}
 
 	/**
@@ -65,7 +64,7 @@ export class SessionService {
 	 */
 	public async findCurrent(req: Request) {
 		const sessionId = req.session.id
-		const sessionKey = `${this.configService.getOrThrow('SESSION_NAME')}:${sessionId}`
+		const sessionKey = `${this.configService.getOrThrow<string>('SESSION_FOLDER')}${sessionId}`
 		const sessionData = await this.redisService.get(sessionKey)
 		const session = JSON.parse(sessionData)
 
@@ -118,7 +117,7 @@ export class SessionService {
 		const metadata = getSessionMetadata(req, userAgent)
 
 		return new Promise((resolve, reject) => {
-			req.session.createAt = new Date()
+			req.session.createdAt = new Date()
 			req.session.userId = user.id
 			req.session.metadata = metadata
 
@@ -179,7 +178,7 @@ export class SessionService {
 	 * @throws {ConflictException} If the session to remove is the current active session.
 	 */
 	public async remove(req: Request, id: string) {
-		const sessionKey = `${this.configService.getOrThrow('SESSION_NAME')}:${id}`
+		const sessionKey = `${this.configService.getOrThrow('SESSION_FOLDER')}${id}`
 		if (req.session.id === id) {
 			throw new ConflictException('Cannot remove current session')
 		}

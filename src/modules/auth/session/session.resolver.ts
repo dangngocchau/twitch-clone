@@ -34,8 +34,24 @@ export class SessionResolver {
 		return this.sessionService.login(req, input, userAgent)
 	}
 
+	@Authorization()
 	@Mutation(() => Boolean, { name: 'logoutUser' })
 	public async logout(@Context() { req }: GraphQLContext) {
 		return this.sessionService.logout(req)
+	}
+
+	@Authorization()
+	@Mutation(() => Boolean, { name: 'clearSession' })
+	public async clearSession(@Context() { req }: GraphQLContext) {
+		return this.sessionService.clearSession(req)
+	}
+
+	@Authorization()
+	@Mutation(() => Boolean, { name: 'removeSession' })
+	public async remove(
+		@Context() { req }: GraphQLContext,
+		@Args('id') id: string
+	) {
+		return this.sessionService.remove(req, id)
 	}
 }
