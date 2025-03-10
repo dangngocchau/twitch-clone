@@ -25,6 +25,7 @@ export function getSessionMetadata(
 	req: Request,
 	userAgent: string
 ): SessionMetadata {
+	//TODO Refactor this function
 	const ip = IS_DEV_ENV
 		? '173.166.164.121'
 		: Array.isArray(req.headers['cf-connecting-ip'])

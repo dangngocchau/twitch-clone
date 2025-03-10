@@ -13,6 +13,7 @@ import { PrismaService } from '@/src/core/prisma/prisma.service'
 import { RedisService } from '@/src/core/redis/redis.service'
 import { LoginInput } from '@/src/modules/auth/session/inputs/login.input'
 import { getSessionMetadata } from '@/src/shared/utils/session-metadata.util'
+import { destroySession, saveSession } from '@/src/shared/utils/session.util'
 
 @Injectable()
 export class SessionService {
@@ -116,21 +117,7 @@ export class SessionService {
 
 		const metadata = getSessionMetadata(req, userAgent)
 
-		return new Promise((resolve, reject) => {
-			req.session.createdAt = new Date()
-			req.session.userId = user.id
-			req.session.metadata = metadata
-
-			req.session.save(err => {
-				if (err) {
-					return reject(
-						new InternalServerErrorException('Error saving session')
-					)
-				}
-
-				resolve(user)
-			})
-		})
+		return saveSession(req, user, metadata)
 	}
 
 	/**
@@ -140,22 +127,7 @@ export class SessionService {
 	 * @returns {boolean} True if logout was successful.
 	 */
 	public async logout(req: Request) {
-		return new Promise((resolve, reject) => {
-			req.session.destroy(err => {
-				if (err) {
-					return reject(
-						new InternalServerErrorException(
-							'Error destroying session'
-						)
-					)
-				}
-
-				req.res.clearCookie(
-					this.configService.getOrThrow('SESSION_NAME')
-				)
-				resolve(true)
-			})
-		})
+		return destroySession(req, this.configService)
 	}
 
 	/**
