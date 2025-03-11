@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	ConflictException,
 	Injectable,
 	InternalServerErrorException,
@@ -12,6 +13,7 @@ import type { Request } from 'express'
 import { PrismaService } from '@/src/core/prisma/prisma.service'
 import { RedisService } from '@/src/core/redis/redis.service'
 import { LoginInput } from '@/src/modules/auth/session/inputs/login.input'
+import { VerificationService } from '@/src/modules/auth/verification/verification.service'
 import { getSessionMetadata } from '@/src/shared/utils/session-metadata.util'
 import { destroySession, saveSession } from '@/src/shared/utils/session.util'
 
@@ -20,7 +22,8 @@ export class SessionService {
 	public constructor(
 		private readonly prismaService: PrismaService,
 		private readonly configService: ConfigService,
-		private readonly redisService: RedisService
+		private readonly redisService: RedisService,
+		private readonly verificationService: VerificationService
 	) {}
 
 	/**
@@ -113,6 +116,11 @@ export class SessionService {
 		const isValidPassword = await verify(user.password, password)
 		if (!isValidPassword) {
 			throw new UnauthorizedException('Invalid password')
+		}
+
+		if (!user.isEmailVerified) {
+			await this.verificationService.sendVerificationToken(user)
+			throw new BadRequestException('Email not verified')
 		}
 
 		const metadata = getSessionMetadata(req, userAgent)

@@ -1,13 +1,12 @@
 import { MailerOptions } from '@nestjs-modules/mailer'
 import { ConfigService } from '@nestjs/config'
-import { hostname } from 'os'
 
 export function getMailerConfig(configService: ConfigService): MailerOptions {
 	return {
 		transport: {
 			host: configService.getOrThrow<string>('MAILER_HOST'),
 			port: configService.getOrThrow<number>('MAILER_PORT'),
-			secure: false,
+			secure: true,
 			auth: {
 				user: configService.getOrThrow<string>('MAILER_LOGIN'),
 				pass: configService.getOrThrow<string>('MAILER_PASSWORD')

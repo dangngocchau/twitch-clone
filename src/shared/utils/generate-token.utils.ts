@@ -7,7 +7,7 @@ export async function generateToken(
 	prismaService: PrismaService,
 	user: User,
 	type: TokenType,
-	isUUID: boolean = false
+	isUUID: boolean = true
 ) {
 	let token: string
 	if (isUUID) {
@@ -18,7 +18,7 @@ export async function generateToken(
 		).toString()
 	}
 
-	const expriresIn = new Date(new Date().getTime() + 3000)
+	const expriresIn = new Date(new Date().getTime() + 300000)
 
 	const existingToken = await prismaService.token.findFirst({
 		where: {
