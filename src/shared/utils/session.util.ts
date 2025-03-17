@@ -22,7 +22,7 @@ export function saveSession(
 				)
 			}
 
-			resolve(user)
+			resolve({ user })
 		})
 	})
 }
